@@ -134,7 +134,8 @@ app.post("/api/users", (req, res) => {
 app.delete("/api/users", (req, res) => {
   console.log("deleteリクエストを受け取りました。")//<- ターミナル
 
-  const { id } = req.body
+  // const { id } = req.body
+  const id = req.body
 
   User.findByIdAndRemove(id, err => {
     if (err) res.send(err)
