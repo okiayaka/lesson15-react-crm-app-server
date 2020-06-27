@@ -1,6 +1,10 @@
 // サーバーサイドのフレームワークexpressのインポート
 const express = require('express')
 
+// pathを使うのでインポート
+const path = require('path')
+
+
 // データベースを利用するためにmongoを扱うapiをインポート
 // server.js のあるtarminalに$yarn add mongoose
 const mongoose = require('mongoose')
@@ -23,6 +27,9 @@ const User = mongoose.model("User", UserSchema)
 
 // サーバサイドのフレームワークexpressを起動
 const app = express()
+
+// buildファイルにアクセスできるようにする。
+app.use(express.static(path.join(__dirname, "/build")))
 
 // ミドルウェアの設定
 app.use(express.urlencoded({ extend: true }))
@@ -81,10 +88,11 @@ app.get("/api/users", (req, res) => {
     // 以下json形式
     res.json({
       msg:"データベース内のデータを反映します。",
-      deta: userArrey
+      deta: userArrey // mongoのidが入っている
     })
   })
   // -----------------------------------
+// mongoのデータベース内にidが保存されている。
 
 })
 
@@ -136,6 +144,7 @@ app.delete("/api/users", (req, res) => {
 
   // const { id } = req.body
   const id = req.body
+  console.log(id)
 
   User.findByIdAndRemove(id, err => {
     if (err) res.send(err)
@@ -145,11 +154,20 @@ app.delete("/api/users", (req, res) => {
   })
 })
 
+// herokuでデプロイした際に上記url以外は基本的にReactファイルを表示するようにする。
+app.get("*", (req, res)=> {
+  res.sendFile(path.join(__diename, "/build/index.html"))
+})
+
+// herokuでデプロイする際のポート番号を設定する。
+const port = process.env.PORT || 3001
+
 
 
 
 // サーバーの起動
-app.listen(3001, (err) => {
+  // app.listen(3001, (err) => {
+  app.listen(port, (err) => {
   if (err) console.error(err)
   console.log(`listening on port 3001`)
 })
